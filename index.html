@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minimalist Goal & Habit Tracker</title>
+  <!-- React & ReactDOM CDN -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <!-- Babel CDN for JSX -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Inter Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen antialiased selection:bg-indigo-500 selection:text-white">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    function GoalTracker() {
+      // Clean slate - zero preset goals
+      const [goals, setGoals] = useState([]);
+      const [newGoalText, setNewGoalText] = useState('');
+      const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+      
+      // Tracking state: { 'YYYY-MM-DD': { goalId: true/false } }
+      const [logs, setLogs] = useState({});
+
+      const toggleGoal = (goalId) => {
+        setLogs(prev => {
+          const dateLogs = prev[selectedDate] || {};
+          return {
+            ...prev,
+            [selectedDate]: {
+              ...dateLogs,
+              [goalId]: !dateLogs[goalId]
+            }
+          };
+        });
+      };
+
+      const addGoal = (e) => {
+        e.preventDefault();
+        if (!newGoalText.trim()) return;
+        const newGoal = { id: Date.now(), title: newGoalText.trim() };
+        setGoals([...goals, newGoal]);
+        setNewGoalText('');
+      };
+
+      const deleteGoal = (goalId, e) => {
+        e.stopPropagation();
+        setGoals(goals.filter(g => g.id !== goalId));
+      };
+
+      const getCompletionRate = (daysCount) => {
+        if (goals.length === 0) return 0;
+        
+        let totalPossible = goals.length * daysCount;
+        let completedCount = 0;
+
+        const today = new Date();
+        for (let i = 0; i < daysCount; i++) {
+          const d = new Date(today);
+          d.setDate(today.getDate() - i);
+          const dateStr = d.toISOString().split('T')[0];
+          const dayLog = logs[dateStr] || {};
+          
+          goals.forEach(g => {
+            if (dayLog[g.id]) completedCount++;
+          });
+        }
+
+        return Math.round((completedCount / totalPossible) * 100);
+      };
+
+      const weeklyRate = getCompletionRate(7);
+      const monthlyRate = getCompletionRate(30);
+
+      // Generate last 7 days for quick selector
+      const getRecentDays = () => {
+        const days = [];
+        const today = new Date();
+        for (let i = 6; i >= 0; i--) {
+          const d = new Date(today);
+          d.setDate(today.getDate() - i);
+          const dateStr = d.toISOString().split('T')[0];
+          const dayName = d.toLocaleDateString('en-US', { weekday: 'narrow' });
+          const dayNum = d.getDate();
+          days.push({ dateStr, dayName, dayNum });
+        }
+        return days;
+      };
+
+      return (
+        <div class="max-w-4xl mx-auto px-4 py-8 space-y-8">
+          
+          {/* Header */}
+          <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+            <div>
+              <h1 class="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
+                Goal & Habit Engine
+              </h1>
+              <p class="text-slate-400 text-sm mt-1">Consistency built daily, tracked automatically.</p>
+            </div>
+
+            {/* Quick 7-Day Date Selector Bar */}
+            <div class="flex items-center gap-1.5 bg-slate-900 p-1.5 rounded-2xl border border-slate-800">
+              {getRecentDays().map(day => {
+                const isSelected = day.dateStr === selectedDate;
+                return (
+                  <button
+                    key={day.dateStr}
+                    onClick={() => setSelectedDate(day.dateStr)}
+                    class={`flex flex-col items-center justify-center w-10 h-12 rounded-xl text-xs font-medium transition-all ${
+                      isSelected 
+                        ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 scale-105' 
+                        : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                    }`}
+                  >
+                    <span class="text-[10px] opacity-75">{day.dayName}</span>
+                    <span class="font-bold text-sm">{day.dayNum}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </header>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            
+            {/* Main Checklist Column */}
+            <div class="md:col-span-2 space-y-6">
+              
+              {/* Add New Goal Input */}
+              <form onSubmit={addGoal} class="relative flex items-center">
+                <input
+                  type="text"
+                  placeholder="What daily habit or goal are you committing to?"
+                  value={newGoalText}
+                  onChange={(e) => setNewGoalText(e.target.value)}
+                  class="w-full bg-slate-900 border border-slate-800 rounded-2xl pl-4 pr-28 py-3.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all shadow-inner"
+                />
+                <button 
+                  type="submit"
+                  class="absolute right-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs px-4 py-2 rounded-xl transition shadow-md shadow-indigo-600/20 active:scale-95"
+                >
+                  Add Goal
+                </button>
+              </form>
+
+              {/* Goal List */}
+              <div class="space-y-3">
+                {goals.length === 0 ? (
+                  <div class="border border-dashed border-slate-800 rounded-2xl p-10 text-center space-y-3 bg-slate-900/30">
+                    <div class="w-12 h-12 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center mx-auto text-slate-400 text-lg">
+                      ✨
+                    </div>
+                    <h3 class="font-semibold text-slate-300">Your dashboard is clear</h3>
+                    <p class="text-xs text-slate-500 max-w-sm mx-auto">
+                      Add your first custom daily goal above to start tracking your performance.
+                    </p>
+                  </div>
+                ) : (
+                  goals.map(goal => {
+                    const isDone = logs[selectedDate]?.[goal.id] || false;
+                    return (
+                      <div 
+                        key={goal.id}
+                        onClick={() => toggleGoal(goal.id)}
+                        class={`group flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all duration-200 select-none ${
+                          isDone 
+                            ? 'bg-indigo-950/30 border-indigo-500/40 text-indigo-100 shadow-sm' 
+                            : 'bg-slate-900/80 border-slate-800 text-slate-300 hover:border-slate-700 hover:bg-slate-900'
+                        }`}
+                      >
+                        <div class="flex items-center gap-3">
+                          {/* Checkbox Indicator */}
+                          <div class={`w-6 h-6 rounded-lg flex items-center justify-center border transition-all ${
+                            isDone 
+                              ? 'bg-indigo-600 border-indigo-500 text-white shadow-md shadow-indigo-600/30 scale-105' 
+                              : 'border-slate-700 bg-slate-950/50 group-hover:border-slate-500'
+                          }`}>
+                            {isDone && (
+                              <svg class="w-3.5 h-3.5 stroke-current stroke-[3]" viewBox="0 0 24 24" fill="none">
+                                <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            )}
+                          </div>
+                          
+                          <span class={`font-medium text-sm transition-all ${isDone ? 'line-through text-indigo-300/60' : ''}`}>
+                            {goal.title}
+                          </span>
+                        </div>
+
+                        {/* Delete Button (Visible on Hover) */}
+                        <button 
+                          onClick={(e) => deleteGoal(goal.id, e)}
+                          class="opacity-0 group-hover:opacity-100 text-slate-500 hover:text-rose-400 p-1 transition"
+                          title="Delete Goal"
+                        >
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+
+            {/* Analytics Breakdown Column */}
+            <div class="space-y-6">
+              
+              <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6 shadow-xl">
+                <h2 class="text-sm font-semibold text-slate-400 uppercase tracking-wider">Visual Analytics</h2>
+                
+                {/* Weekly Progress */}
+                <div class="space-y-2">
+                  <div class="flex justify-between items-baseline text-sm">
+                    <span class="text-slate-300 font-medium">7-Day Weekly</span>
+                    <span class="text-indigo-400 font-bold text-base">{weeklyRate}%</span>
+                  </div>
+                  <div class="w-full bg-slate-950 rounded-full h-2.5 p-0.5 border border-slate-800">
+                    <div 
+                      class="bg-gradient-to-r from-indigo-600 to-indigo-400 h-full rounded-full transition-all duration-500"
+                      style={{ width: `${weeklyRate}%` }}
+                    ></div>
+                  </div>
+                </div>
+
+                {/* Monthly Progress */}
+                <div class="space-y-2">
+                  <div class="flex justify-between items-baseline text-sm">
+                    <span class="text-slate-300 font-medium">30-Day Monthly</span>
+                    <span class="text-emerald-400 font-bold text-base">{monthlyRate}%</span>
+                  </div>
+                  <div class="w-full bg-slate-950 rounded-full h-2.5 p-0.5 border border-slate-800">
+                    <div 
+                      class="bg-gradient-to-r from-emerald-600 to-emerald-400 h-full rounded-full transition-all duration-500"
+                      style={{ width: `${monthlyRate}%` }}
+                    ></div>
+                  </div>
+                </div>
+
+                <div class="pt-2 border-t border-slate-800/80">
+                  <p class="text-xs text-slate-500 leading-relaxed">
+                    💡 Click any day on the top date bar to toggle past entries or view historical completion rates.
+                  </p>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<GoalTracker />);
+  </script>
+</body>
+</html>
