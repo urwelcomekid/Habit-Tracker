@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Goal & Habit Engine</title>
+  <!-- React & ReactDOM CDN -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <!-- Babel CDN for JSX -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Plus Jakarta Sans Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+    @media print {
+      body {
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .print-card {
+        background-color: #f8fafc !important;
+        border: 1px solid #e2e8f0 !important;
+        color: #0f172a !important;
+        box-shadow: none !important;
+      }
+      .print-text {
+        color: #0f172a !important;
+      }
+      .print-bar {
+        background-color: #6366f1 !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen antialiased selection:bg-indigo-500 selection:text-white">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    function GoalTracker() {
+      const today = new Date();
+      const todayStr = today.toISOString().split('T')[0];
+
+      // Stored data
+      const [goals, setGoals] = useState(() => {
+        const saved = localStorage.getItem('app_goals');
+        return saved ? JSON.parse(saved) : [];
+      });
+
+      const [logs, setLogs] = useState(() => {
+        const saved = localStorage.getItem('app_logs');
+        return saved ? JSON.parse(saved) : {};
+      });
+
+      // Active state
+      const [newGoalText, setNewGoalText] = useState('');
+      const [selectedDate, setSelectedDate] = useState(todayStr);
+      const [currentMonth, setCurrentMonth] = useState(today.getMonth());
+      const [currentYear, setCurrentYear] = useState(today.getFullYear());
+      
+      // UI Toggle States
+      const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(false);
+      const [isCalendarOpen, setIsCalendarOpen] = useState(true);
+
+      // Save to localStorage
+      useEffect(() => {
+        localStorage.setItem('app_goals', JSON.stringify(goals));
+      }, [goals]);
+
+      useEffect(() => {
+        localStorage.setItem('app_logs', JSON.stringify(logs));
+      }, [logs]);
+
+      const toggleGoal = (goalId) => {
+        setLogs(prev => {
+          const dateLogs = prev[selectedDate] || {};
+          return {
+            ...prev,
+            [selectedDate]: {
+              ...dateLogs,
+              [goalId]: !dateLogs[goalId]
+            }
+          };
+        });
+      };
+
+      const addGoal = (e) => {
+        e.preventDefault();
+        if (!newGoalText.trim()) return;
+        const newGoal = { id: Date.now().toString(), title: newGoalText.trim() };
+        setGoals([...goals, newGoal]);
+        setNewGoalText('');
+      };
+
+      const deleteGoal = (goalId, e) => {
+        e.stopPropagation();
+        setGoals(goals.filter(g => g.id !== goalId));
+      };
+
+      const getSingleGoalStats = (goalId, daysCount) => {
+        let completedCount = 0;
+        const baseDate = new Date(selectedDate);
+
+        for (let i = 0; i < daysCount; i++) {
+          const d = new Date(baseDate);
+          d.setDate(baseDate.getDate() - i);
+          const dateStr = d.toISOString().split('T')[0];
+          if (logs[dateStr]?.[goalId]) {
+            completedCount++;
+          }
+        }
+
+        const percentage = Math.round((completedCount / daysCount) * 100);
+        return { completedCount, percentage };
+      };
+
+      // Calendar Helper Functions
+      const daysInMonth = (month, year) => new Date(year, month + 1, 0).getDate();
+      const firstDayOfMonth = (month, year) => new Date(year, month, 1).getDay();
+
+      const handlePrevMonth = () => {
+        if (currentMonth === 0) {
+          setCurrentMonth(11);
+          setCurrentYear(currentYear - 1);
+        } else {
+          setCurrentMonth(currentMonth - 1);
+        }
+      };
+
+      const handleNextMonth = () => {
+        if (currentMonth === 11) {
+          setCurrentMonth(0);
+          setCurrentYear(currentYear + 1);
+        } else {
+          setCurrentMonth(currentMonth + 1);
+        }
+      };
+
+      const handleJumpToToday = () => {
+        const now = new Date();
+        setCurrentMonth(now.getMonth());
+        setCurrentYear(now.getFullYear());
+        setSelectedDate(now.toISOString().split('T')[0]);
+      };
+
+      const monthNames = [
+        "January", "February", "March", "April", "May", "June", 
+        "July", "August", "September", "October", "November", "December"
+      ];
+
+      return (
+        <div class="max-w-5xl mx-auto px-4 py-8 space-y-8">
+          
+          {/* Header */}
+          <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+            <div>
+              <h1 class="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent print-text">
+                Goal & Habit Engine
+              </h1>
+              <p class="text-slate-400 text-sm mt-1 print-text">Master habit tracking with full calendar history.</p>
+            </div>
+
+            {/* Quick Actions */}
+            <div class="flex items-center gap-2 no-print">
+              <button 
+                onClick={handleJumpToToday}
+                class="bg-slate-900 hover:bg-slate-800 text-indigo-300 border border-slate-800 text-xs font-semibold px-3 py-2 rounded-xl transition"
+              >
+                Jump to Today
+              </button>
+              <button 
+                onClick={() => window.print()}
+                class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs px-4 py-2 rounded-xl transition shadow-md shadow-indigo-600/20"
+              >
+                Export PDF
+              </button>
+            </div>
+          </header>
+
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            {/* Main Checklist Column */}
+            <div class="lg:col-span-7 space-y-6">
+              
+              {/* Selected Date Header Banner */}
+              <div class="flex items-center justify-between bg-slate-900/80 border border-slate-800 p-4 rounded-2xl print-card">
+                <div>
+                  <span class="text-xs font-semibold text-indigo-400 uppercase tracking-wider print-text">Logging For</span>
+                  <h2 class="text-lg font-bold text-slate-100 print-text">
+                    {new Date(selectedDate + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' })}
+                  </h2>
+                </div>
+                {selectedDate === todayStr && (
+                  <span class="bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wide no-print">
+                    Today
+                  </span>
+                )}
+              </div>
+
+              {/* Add New Goal Input */}
+              <form onSubmit={addGoal} class="relative flex items-center no-print">
+                <input
+                  type="text"
+                  placeholder="Add a new master habit or daily goal..."
+                  value={newGoalText}
+                  onChange={(e) => setNewGoalText(e.target.value)}
+                  class="w-full bg-slate-900 border border-slate-800 rounded-2xl pl-4 pr-28 py-3.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all shadow-inner"
+                />
+                <button 
+                  type="submit"
+                  class="absolute right-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs px-4 py-2 rounded-xl transition shadow-md shadow-indigo-600/20 active:scale-95"
+                >
+                  Add Habit
+                </button>
+              </form>
+
+              {/* Goal List */}
+              <div class="space-y-3">
+                {goals.length === 0 ? (
+                  <div class="border border-dashed border-slate-800 rounded-2xl p-10 text-center space-y-3 bg-slate-900/30 print-card">
+                    <div class="w-12 h-12 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center mx-auto text-slate-400 text-lg no-print">
+                      ✨
+                    </div>
+                    <h3 class="font-semibold text-slate-300 print-text">No habits added yet</h3>
+                    <p class="text-xs text-slate-500 max-w-sm mx-auto print-text">
+                      Habits added here automatically carry over to every day.
+                    </p>
+                  </div>
+                ) : (
+                  goals.map(goal => {
+                    const isDone = logs[selectedDate]?.[goal.id] || false;
+                    return (
+                      <div 
+                        key={goal.id}
+                        onClick={() => toggleGoal(goal.id)}
+                        class={`group flex items-center justify-between p-4 rounded-2xl border cursor-pointer transition-all duration-200 select-none print-card ${
+                          isDone 
+                            ? 'bg-indigo-950/30 border-indigo-500/40 text-indigo-100 shadow-sm' 
+                            : 'bg-slate-900/80 border-slate-800 text-slate-300 hover:border-slate-700 hover:bg-slate-900'
+                        }`}
+                      >
+                        <div class="flex items-center gap-3">
+                          <div class={`w-6 h-6 rounded-lg flex items-center justify-center border transition-all ${
+                            isDone 
+                              ? 'bg-indigo-600 border-indigo-500 text-white shadow-md shadow-indigo-600/30 scale-105' 
+                              : 'border-slate-700 bg-slate-950/50 group-hover:border-slate-500'
+                          }`}>
+                            {isDone && (
+                              <svg class="w-3.5 h-3.5 stroke-current stroke-[3]" viewBox="0 0 24 24" fill="none">
+                                <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round"/>
+                              </svg>
+                            )}
+                          </div>
+                          
+                          <span class={`font-medium text-sm transition-all print-text ${isDone ? 'line-through text-indigo-300/60' : ''}`}>
+                            {goal.title}
+                          </span>
+                        </div>
+
+                        <button 
+                          onClick={(e) => deleteGoal(goal.id, e)}
+                          class="opacity-0 group-hover:opacity-100 text-slate-500 hover:text-rose-400 p-1 transition no-print"
+                          title="Delete Goal"
+                        >
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+
+            {/* Sidebar Column (Calendar & Dropdown Progress) */}
+            <div class="lg:col-span-5 space-y-6">
+              
+              {/* Dynamic Calendar Date Picker Card */}
+              <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl space-y-4 no-print">
+                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                  <div class="flex items-center gap-2">
+                    <button onClick={handlePrevMonth} class="text-slate-400 hover:text-white p-1">‹</button>
+                    <span class="font-bold text-sm text-slate-200">
+                      {monthNames[currentMonth]} {currentYear}
+                    </span>
+                    <button onClick={handleNextMonth} class="text-slate-400 hover:text-white p-1">›</button>
+                  </div>
+
+                  {/* Month / Year Selectors */}
+                  <div class="flex items-center gap-1">
+                    <select 
+                      value={currentMonth} 
+                      onChange={(e) => setCurrentMonth(Number(e.target.value))}
+                      class="bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-300 px-2 py-1 focus:outline-none"
+                    >
+                      {monthNames.map((m, idx) => (
+                        <option key={m} value={idx}>{m.substring(0, 3)}</option>
+                      ))}
+                    </select>
+                    <select 
+                      value={currentYear} 
+                      onChange={(e) => setCurrentYear(Number(e.target.value))}
+                      class="bg-slate-950 border border-slate-800 rounded-lg text-xs text-slate-300 px-2 py-1 focus:outline-none"
+                    >
+                      {[2024, 2025, 2026, 2027, 2028].map(y => (
+                        <option key={y} value={y}>{y}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Calendar Grid */}
+                <div class="grid grid-cols-7 gap-1 text-center">
+                  {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(d => (
+                    <span key={d} class="text-[10px] font-bold text-slate-500 py-1">{d}</span>
+                  ))}
+
+                  {/* Empty padding cells */}
+                  {Array.from({ length: firstDayOfMonth(currentMonth, currentYear) }).map((_, i) => (
+                    <div key={`empty-${i}`} class="h-8"></div>
+                  ))}
+
+                  {/* Calendar Days */}
+                  {Array.from({ length: daysInMonth(currentMonth, currentYear) }).map((_, i) => {
+                    const dayNum = i + 1;
+                    const dateFormatted = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
+                    const isSelected = dateFormatted === selectedDate;
+                    const isToday = dateFormatted === todayStr;
+
+                    return (
+                      <button
+                        key={dayNum}
+                        onClick={() => setSelectedDate(dateFormatted)}
+                        class={`h-8 w-8 mx-auto rounded-lg text-xs font-semibold flex items-center justify-center transition-all ${
+                          isSelected
+                            ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
+                            : isToday
+                            ? 'border border-indigo-500 text-indigo-400 bg-indigo-500/10'
+                            : 'text-slate-400 hover:bg-slate-800 hover:text-slate-200'
+                        }`}
+                      >
+                        {dayNum}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Collapsible Dropdown Analytics Section */}
+              <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden print-card">
+                
+                {/* Accordion Toggle Bar */}
+                <button 
+                  onClick={() => setIsAnalyticsOpen(!isAnalyticsOpen)}
+                  class="w-full p-5 flex items-center justify-between text-left hover:bg-slate-800/40 transition no-print"
+                >
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider print-text">Individual Analytics</span>
+                    <span class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full font-mono">
+                      {goals.length} Habits
+                    </span>
+                  </div>
+                  
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs text-indigo-400 font-medium">
+                      {isAnalyticsOpen ? 'Hide Visuals' : 'Show Visuals'}
+                    </span>
+                    <svg 
+                      class={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isAnalyticsOpen ? 'rotate-180' : ''}`} 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </button>
+
+                {/* Collapsible Content Body */}
+                {(isAnalyticsOpen || window.matchMedia('print').matches) && (
+                  <div class="px-5 pb-5 pt-1 border-t border-slate-800/80 space-y-5">
+                    {goals.length === 0 ? (
+                      <p class="text-xs text-slate-500 text-center py-4 print-text">Add habits above to generate individual analytics.</p>
+                    ) : (
+                      <div class="space-y-5 divide-y divide-slate-800/50">
+                        {goals.map(goal => {
+                          const weekly = getSingleGoalStats(goal.id, 7);
+                          const monthly = getSingleGoalStats(goal.id, 30);
+
+                          return (
+                            <div key={goal.id} class="pt-4 first:pt-0 space-y-2.5">
+                              <h3 class="text-sm font-semibold text-slate-200 truncate print-text">{goal.title}</h3>
+
+                              {/* 7-Day Bar */}
+                              <div class="space-y-1">
+                                <div class="flex justify-between text-xs text-slate-400 print-text">
+                                  <span>7-Day: <strong class="text-indigo-300 font-normal print-text">{weekly.completedCount}/7 days</strong></span>
+                                  <span class="font-semibold text-indigo-400 print-text">{weekly.percentage}%</span>
+                                </div>
+                                <div class="w-full bg-slate-950 rounded-full h-2 p-0.5 border border-slate-800">
+                                  <div 
+                                    class="bg-indigo-500 h-full rounded-full transition-all duration-500 print-bar"
+                                    style={{ width: `${weekly.percentage}%` }}
+                                  ></div>
+                                </div>
+                              </div>
+
+                              {/* 30-Day Bar */}
+                              <div class="space-y-1">
+                                <div class="flex justify-between text-xs text-slate-400 print-text">
+                                  <span>30-Day: <strong class="text-emerald-300 font-normal print-text">{monthly.completedCount}/30 days</strong></span>
+                                  <span class="font-semibold text-emerald-400 print-text">{monthly.percentage}%</span>
+                                </div>
+                                <div class="w-full bg-slate-950 rounded-full h-2 p-0.5 border border-slate-800">
+                                  <div 
+                                    class="bg-emerald-500 h-full rounded-full transition-all duration-500 print-bar"
+                                    style={{ width: `${monthly.percentage}%` }}
+                                  ></div>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<GoalTracker />);
+  </script>
+</body>
+</html>
