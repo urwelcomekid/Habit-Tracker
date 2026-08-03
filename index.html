@@ -30,7 +30,6 @@
 
   <!-- Favicons -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='112' fill='%23090d16'/><path d='M210 110 L150 330 L200 310 L230 360 L240 240 Z' fill='%23f43f5e' opacity='0.9'/><path d='M302 110 L362 330 L312 310 L282 360 L272 240 Z' fill='%23e11d48' opacity='0.7'/><circle cx='256' cy='220' r='110' fill='%23eab308'/><circle cx='256' cy='220' r='88' fill='%230f172a'/><path d='M205 220 L240 255 L310 185' fill='none' stroke='%23eab308' stroke-width='20' stroke-linecap='round' stroke-linejoin='round'/></svg>">
-  <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='112' fill='%23090d16'/><path d='M210 110 L150 330 L200 310 L230 360 L240 240 Z' fill='%23f43f5e' opacity='0.9'/><path d='M302 110 L362 330 L312 310 L282 360 L272 240 Z' fill='%23e11d48' opacity='0.7'/><circle cx='256' cy='220' r='110' fill='%23eab308'/><circle cx='256' cy='220' r='88' fill='%230f172a'/><path d='M205 220 L240 255 L310 185' fill='none' stroke='%23eab308' stroke-width='20' stroke-linecap='round' stroke-linejoin='round'/></svg>">
 
   <!-- React & ReactDOM CDN -->
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
@@ -39,29 +38,33 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Inter Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Modern Font: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   
   <style>
     body { 
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
-      letter-spacing: -0.011em;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif; 
+      letter-spacing: -0.02em;
     }
 
     .glass-panel {
-      background: rgba(18, 24, 38, 0.65);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      background: rgba(15, 20, 32, 0.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
     }
 
     .glass-input {
-      background: rgba(10, 14, 23, 0.6);
+      background: rgba(8, 12, 20, 0.7);
       border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .glass-input:focus {
-      background: rgba(10, 14, 23, 0.85);
+      background: rgba(8, 12, 20, 0.9);
       border-color: rgba(255, 255, 255, 0.25);
     }
 
@@ -94,61 +97,71 @@
   <script type="text/babel">
     const { useState, useEffect } = React;
 
+    // Daily Motivational Quotes Collection
+    const DAILY_QUOTES = [
+      { quote: "We are what we repeatedly do. Excellence, then, is not an act, but a habit.", author: "Aristotle" },
+      { quote: "You do not rise to the level of your goals. You fall to the level of your systems.", author: "James Clear" },
+      { quote: "Small disciplines repeated with consistency every day lead to great achievements.", author: "John C. Maxwell" },
+      { quote: "Energy flows where attention goes. Focus on building the new.", author: "Tony Robbins" },
+      { quote: "Success isn't always about greatness. It's about consistency.", author: "Dwayne Johnson" },
+      { quote: "The secret of your future is hidden in your daily routine.", author: "Mike Murdock" },
+      { quote: "Motivation is what gets you started. Habit is what keeps you going.", author: "Jim Ryun" },
+      { quote: "Action is the foundational key to all success.", author: "Pablo Picasso" },
+      { quote: "Continuous improvement is better than delayed perfection.", author: "Mark Twain" },
+      { quote: "It’s not what we do once in a while that shapes our lives, but what we do consistently.", author: "Tony Robbins" }
+    ];
+
     // Modern Refined Color Themes
     const THEMES = {
       rose: {
         name: 'Rose Neon 🌸',
-        bg: 'bg-[#0b0813]',
+        bg: 'bg-[#08060e]',
         accent: 'from-rose-500 to-pink-600',
-        accentGlow: 'shadow-rose-500/20',
         textPrimary: 'from-white via-rose-100 to-rose-300',
         textSub: 'text-rose-200/70',
-        btn: 'bg-rose-500 hover:bg-rose-400 text-white shadow-lg shadow-rose-500/25 border border-rose-400/30',
+        btn: 'bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-400 hover:to-pink-500 text-white shadow-lg shadow-rose-500/25 border border-rose-400/30',
         badge: 'bg-rose-500/10 text-rose-300 border-rose-500/20',
         barWeekly: 'bg-gradient-to-r from-rose-500 to-pink-500',
         barMonthly: 'bg-gradient-to-r from-pink-500 to-purple-500',
         textWeekly: 'text-rose-400',
         textMonthly: 'text-pink-300',
-        checkedCard: 'bg-gradient-to-r from-rose-950/40 to-pink-950/20 border-rose-500/40 text-rose-100 shadow-lg shadow-rose-950/50'
+        checkedCard: 'bg-gradient-to-r from-rose-950/40 to-pink-950/20 border-rose-500/40 text-rose-100 shadow-lg shadow-rose-950/40'
       },
       violet: {
         name: 'Cyber Violet 💜',
-        bg: 'bg-[#090714]',
+        bg: 'bg-[#06050e]',
         accent: 'from-violet-500 to-fuchsia-600',
-        accentGlow: 'shadow-violet-500/20',
         textPrimary: 'from-white via-violet-100 to-violet-300',
         textSub: 'text-violet-200/70',
-        btn: 'bg-violet-600 hover:bg-violet-500 text-white shadow-lg shadow-violet-600/25 border border-violet-400/30',
+        btn: 'bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white shadow-lg shadow-violet-600/25 border border-violet-400/30',
         badge: 'bg-violet-500/10 text-violet-300 border-violet-500/20',
         barWeekly: 'bg-gradient-to-r from-violet-500 to-fuchsia-500',
         barMonthly: 'bg-gradient-to-r from-fuchsia-500 to-purple-500',
         textWeekly: 'text-violet-400',
         textMonthly: 'text-fuchsia-300',
-        checkedCard: 'bg-gradient-to-r from-violet-950/40 to-fuchsia-950/20 border-violet-500/40 text-violet-100 shadow-lg shadow-violet-950/50'
+        checkedCard: 'bg-gradient-to-r from-violet-950/40 to-fuchsia-950/20 border-violet-500/40 text-violet-100 shadow-lg shadow-violet-950/40'
       },
       emerald: {
         name: 'Emerald Aurora 🌿',
-        bg: 'bg-[#050e0a]',
+        bg: 'bg-[#030906]',
         accent: 'from-emerald-500 to-teal-600',
-        accentGlow: 'shadow-emerald-500/20',
         textPrimary: 'from-white via-emerald-100 to-emerald-300',
         textSub: 'text-emerald-200/70',
-        btn: 'bg-emerald-500 hover:bg-emerald-400 text-white shadow-lg shadow-emerald-500/25 border border-emerald-400/30',
+        btn: 'bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white shadow-lg shadow-emerald-500/25 border border-emerald-400/30',
         badge: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20',
         barWeekly: 'bg-gradient-to-r from-emerald-500 to-teal-400',
         barMonthly: 'bg-gradient-to-r from-teal-500 to-cyan-500',
         textWeekly: 'text-emerald-400',
         textMonthly: 'text-teal-300',
-        checkedCard: 'bg-gradient-to-r from-emerald-950/40 to-teal-950/20 border-emerald-500/40 text-emerald-100 shadow-lg shadow-emerald-950/50'
+        checkedCard: 'bg-gradient-to-r from-emerald-950/40 to-teal-950/20 border-emerald-500/40 text-emerald-100 shadow-lg shadow-emerald-950/40'
       },
       slate: {
         name: 'Obsidian Slate 🌙',
-        bg: 'bg-[#080b11]',
+        bg: 'bg-[#06080d]',
         accent: 'from-cyan-500 to-blue-600',
-        accentGlow: 'shadow-cyan-500/20',
         textPrimary: 'from-white via-slate-100 to-slate-300',
         textSub: 'text-slate-400',
-        btn: 'bg-cyan-600 hover:bg-cyan-500 text-white shadow-lg shadow-cyan-600/25 border border-cyan-400/30',
+        btn: 'bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-lg shadow-cyan-600/25 border border-cyan-400/30',
         badge: 'bg-cyan-500/10 text-cyan-300 border-cyan-500/20',
         barWeekly: 'bg-gradient-to-r from-cyan-500 to-blue-500',
         barMonthly: 'bg-gradient-to-r from-blue-500 to-indigo-500',
@@ -196,8 +209,8 @@
       const [currentMonth, setCurrentMonth] = useState(today.getMonth());
       const [currentYear, setCurrentYear] = useState(today.getFullYear());
       
-      const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(true);
-      const [isWeightChartOpen, setIsWeightChartOpen] = useState(true);
+      const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(false);
+      const [isWeightChartOpen, setIsWeightChartOpen] = useState(false);
 
       const hasWeightHabit = goals.some(
         g => g.title.toLowerCase().includes('weight')
@@ -205,6 +218,18 @@
 
       const theme = THEMES[currentTheme] || THEMES.rose;
       const monthKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
+
+      // Calculate a stable index for daily quote based on selectedDate
+      const getDailyQuote = () => {
+        let hash = 0;
+        for (let i = 0; i < selectedDate.length; i++) {
+          hash = selectedDate.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        const quoteIndex = Math.abs(hash) % DAILY_QUOTES.length;
+        return DAILY_QUOTES[quoteIndex];
+      };
+
+      const currentQuote = getDailyQuote();
 
       useEffect(() => {
         document.body.className = `${theme.bg} text-slate-100 min-h-screen antialiased transition-colors duration-500`;
@@ -377,7 +402,6 @@
         return currDistance < prevDistance ? "#10b981" : currDistance > prevDistance ? "#f43f5e" : "#38bdf8";
       };
 
-      // Active completed stats for today
       const completedTodayCount = goals.filter(g => logs[selectedDate]?.[g.id]).length;
       const totalGoalsCount = goals.length;
       const progressPercent = totalGoalsCount > 0 ? Math.round((completedTodayCount / totalGoalsCount) * 100) : 0;
@@ -385,72 +409,102 @@
       return (
         <div class="max-w-6xl mx-auto px-4 sm:px-6 py-10 space-y-8">
           
-          {/* Top Modern Header */}
-          <header class="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-white/10">
-            <div class="space-y-1">
-              <div class="flex items-center gap-2">
-                <span class="inline-block w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span>
-                <span class="text-xs font-bold uppercase tracking-widest text-slate-400">Personal Tracker</span>
+          {/* Top Header */}
+          <header class="flex flex-col space-y-4 pb-6 border-b border-white/10">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div class="space-y-1">
+                <div class="flex items-center gap-2">
+                  <div class="w-6 h-6 rounded-lg bg-gradient-to-tr from-rose-500 to-amber-400 flex items-center justify-center shadow-md">
+                    <svg class="w-3.5 h-3.5 text-black stroke-[2.5]" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                      <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                  <span class="text-xs font-extrabold uppercase tracking-widest text-slate-400">Daily Engine</span>
+                </div>
+                <h1 class={`text-4xl font-extrabold tracking-tight bg-gradient-to-r ${theme.textPrimary} bg-clip-text text-transparent print-text`}>
+                  Habit Engine
+                </h1>
               </div>
-              <h1 class={`text-4xl font-black tracking-tight bg-gradient-to-r ${theme.textPrimary} bg-clip-text text-transparent print-text`}>
-                Habit Engine
-              </h1>
+
+              <div class="flex items-center gap-3 no-print">
+                <div class="glass-panel px-3 py-1.5 rounded-2xl flex items-center gap-2 border border-white/10">
+                  <span class="text-xs text-slate-400 font-medium pl-1">Theme:</span>
+                  <select 
+                    value={currentTheme}
+                    onChange={(e) => setCurrentTheme(e.target.value)}
+                    class="bg-transparent text-white text-xs font-semibold focus:outline-none cursor-pointer pr-1"
+                  >
+                    {Object.keys(THEMES).map(tKey => (
+                      <option key={tKey} value={tKey} class="bg-slate-900 text-white">
+                        {THEMES[tKey].name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <button 
+                  onClick={handleJumpToToday}
+                  class="glass-panel hover:bg-white/10 text-white border border-white/10 text-xs font-bold px-4 py-2.5 rounded-2xl transition-all active:scale-95 flex items-center gap-1.5"
+                >
+                  <svg class="w-3.5 h-3.5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  Today
+                </button>
+                <button 
+                  onClick={() => window.print()}
+                  class={`${theme.btn} font-bold text-xs px-4 py-2.5 rounded-2xl transition-all active:scale-95 flex items-center gap-1.5`}
+                >
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  PDF
+                </button>
+              </div>
             </div>
 
-            <div class="flex items-center gap-3 no-print">
-              <div class="glass-panel px-3 py-1.5 rounded-2xl flex items-center gap-2 border border-white/10">
-                <span class="text-xs text-slate-400 font-medium pl-1">Theme:</span>
-                <select 
-                  value={currentTheme}
-                  onChange={(e) => setCurrentTheme(e.target.value)}
-                  class="bg-transparent text-white text-xs font-semibold focus:outline-none cursor-pointer pr-1"
-                >
-                  {Object.keys(THEMES).map(tKey => (
-                    <option key={tKey} value={tKey} class="bg-slate-900 text-white">
-                      {THEMES[tKey].name}
-                    </option>
-                  ))}
-                </select>
+            {/* Daily Motivational Quote Bar */}
+            <div class="glass-panel p-3.5 rounded-2xl flex items-center gap-3 border border-white/10 shadow-lg print-card">
+              <div class="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center flex-shrink-0">
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                  <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
+                </svg>
               </div>
-
-              <button 
-                onClick={handleJumpToToday}
-                class="glass-panel hover:bg-white/10 text-white border border-white/10 text-xs font-semibold px-4 py-2.5 rounded-2xl transition-all active:scale-95"
-              >
-                Today
-              </button>
-              <button 
-                onClick={() => window.print()}
-                class={`${theme.btn} font-semibold text-xs px-4 py-2.5 rounded-2xl transition-all active:scale-95`}
-              >
-                Export PDF
-              </button>
+              <div class="space-y-0.5 text-xs">
+                <p class="text-slate-200 font-semibold italic tracking-wide print-text">
+                  "{currentQuote.quote}"
+                </p>
+                <p class={`font-bold ${theme.textWeekly} print-text`}>
+                  — {currentQuote.author}
+                </p>
+              </div>
             </div>
           </header>
 
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
             
-            {/* Main Column */}
+            {/* Main Tracker Column */}
             <div class="lg:col-span-7 space-y-6">
               
-              {/* Daily Progress Banner */}
-              <div class={`glass-panel p-6 rounded-3xl relative overflow-hidden print-card`}>
+              {/* Daily Progress Card */}
+              <div class="glass-panel p-6 rounded-3xl relative overflow-hidden print-card">
                 <div class="flex items-center justify-between relative z-10">
                   <div class="space-y-1">
-                    <span class={`text-xs font-bold uppercase tracking-widest ${theme.textWeekly} print-text`}>Selected Date</span>
-                    <h2 class="text-2xl font-extrabold text-white print-text">
+                    <span class={`text-[11px] font-extrabold uppercase tracking-widest ${theme.textWeekly} print-text`}>
+                      Active Workspace
+                    </span>
+                    <h2 class="text-2xl font-black text-white tracking-tight print-text">
                       {new Date(selectedDate + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
                     </h2>
                   </div>
 
-                  <div class="text-right space-y-1">
-                    <span class="text-2xl font-black text-white">{progressPercent}%</span>
-                    <p class="text-[11px] text-slate-400 font-medium">{completedTodayCount} of {totalGoalsCount} Done</p>
+                  <div class="text-right space-y-0.5">
+                    <span class="text-3xl font-black text-white tracking-tight">{progressPercent}%</span>
+                    <p class="text-[11px] text-slate-400 font-semibold">{completedTodayCount} of {totalGoalsCount} Completed</p>
                   </div>
                 </div>
 
-                {/* Progress bar line */}
-                <div class="mt-4 w-full bg-black/40 h-1.5 rounded-full overflow-hidden border border-white/5">
+                <div class="mt-5 w-full bg-black/50 h-2 rounded-full overflow-hidden border border-white/5">
                   <div 
                     class={`h-full ${theme.barWeekly} transition-all duration-700 ease-out`}
                     style={{ width: `${progressPercent}%` }}
@@ -458,17 +512,21 @@
                 </div>
               </div>
 
-              {/* Weight Log Bar */}
+              {/* Weight Quick Log Bar */}
               {hasWeightHabit && (
                 <div class="glass-panel p-4 rounded-3xl space-y-3 no-print">
                   <div class="flex items-center justify-between px-1">
                     <div class="flex items-center gap-2">
-                      <span class="text-base">⚖️</span>
-                      <h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider">Weight Log</h3>
+                      <div class="w-6 h-6 rounded-lg bg-sky-500/20 text-sky-400 border border-sky-500/30 flex items-center justify-center">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 6l3 12h12l3-12H3z M12 6v12" />
+                        </svg>
+                      </div>
+                      <h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider">Daily Weight Entry</h3>
                     </div>
                     {weightLogs[selectedDate] && (
-                      <span class="text-xs text-slate-300">
-                        Logged: <strong class="text-white font-semibold">{weightLogs[selectedDate]} lbs</strong>
+                      <span class="text-xs text-slate-300 font-medium">
+                        Logged: <strong class="text-white font-bold">{weightLogs[selectedDate]} lbs</strong>
                       </span>
                     )}
                   </div>
@@ -478,16 +536,16 @@
                       <input
                         type="number"
                         step="0.1"
-                        placeholder="Enter weight for this date..."
+                        placeholder="Log weight for selected day..."
                         value={weightInput}
                         onChange={(e) => setWeightInput(e.target.value)}
                         class="w-full glass-input rounded-2xl pl-4 pr-12 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none transition shadow-inner"
                       />
-                      <span class="absolute right-4 top-3 text-xs text-slate-400 font-semibold pointer-events-none">lbs</span>
+                      <span class="absolute right-4 top-3 text-xs text-slate-400 font-bold pointer-events-none">lbs</span>
                     </div>
                     <button
                       type="submit"
-                      class={`${theme.btn} font-semibold text-xs px-5 py-3 rounded-2xl transition shadow-md active:scale-95`}
+                      class={`${theme.btn} font-bold text-xs px-5 py-3 rounded-2xl transition shadow-md active:scale-95`}
                     >
                       Save
                     </button>
@@ -495,19 +553,22 @@
                 </div>
               )}
 
-              {/* Add New Goal Bar */}
+              {/* Create Habit Input */}
               <form onSubmit={addGoal} class="relative flex items-center no-print">
                 <input
                   type="text"
-                  placeholder="Create new habit..."
+                  placeholder="Create a new habit or goal..."
                   value={newGoalText}
                   onChange={(e) => setNewGoalText(e.target.value)}
-                  class="w-full glass-input rounded-2xl pl-5 pr-32 py-4 text-sm text-white placeholder-slate-500 focus:outline-none transition-all shadow-inner"
+                  class="w-full glass-input rounded-2xl pl-5 pr-32 py-4 text-sm text-white placeholder-slate-500 focus:outline-none transition-all shadow-inner font-medium"
                 />
                 <button 
                   type="submit"
-                  class={`absolute right-2 ${theme.btn} font-semibold text-xs px-5 py-2.5 rounded-xl transition shadow-md active:scale-95`}
+                  class={`absolute right-2 ${theme.btn} font-bold text-xs px-5 py-2.5 rounded-xl transition shadow-md active:scale-95 flex items-center gap-1`}
                 >
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4" />
+                  </svg>
                   Add Habit
                 </button>
               </form>
@@ -516,12 +577,14 @@
               <div class="space-y-3">
                 {goals.length === 0 ? (
                   <div class="glass-panel rounded-3xl p-12 text-center space-y-3 print-card">
-                    <div class="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto text-slate-300 text-xl no-print">
-                      ✨
+                    <div class="w-12 h-12 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto text-slate-400 no-print">
+                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                      </svg>
                     </div>
-                    <h3 class="font-bold text-slate-200 text-lg print-text">Your list is clean</h3>
-                    <p class={`text-xs ${theme.textSub} max-w-xs mx-auto print-text`}>
-                      Add habits above to build your daily routine. Add "Weight" (e.g. Weight ⚖️) to enable graph tracking!
+                    <h3 class="font-bold text-slate-200 text-lg print-text">No habits initialized</h3>
+                    <p class={`text-xs ${theme.textSub} max-w-xs mx-auto print-text font-medium`}>
+                      Add your routine goals above. (Tip: Include "Weight" in a habit title to activate graph tracking!)
                     </p>
                   </div>
                 ) : (
@@ -581,7 +644,7 @@
                               </button>
                             </div>
                           ) : (
-                            <span class={`font-medium text-sm transition-all print-text ${isDone ? 'line-through opacity-60' : 'text-slate-100'}`}>
+                            <span class={`font-semibold text-sm transition-all print-text ${isDone ? 'line-through opacity-60' : 'text-slate-100'}`}>
                               {goal.title}
                             </span>
                           )}
@@ -619,22 +682,26 @@
             {/* Sidebar Column */}
             <div class="lg:col-span-5 space-y-6">
               
-              {/* Calendar Widget */}
+              {/* Calendar Control Center */}
               <div class="glass-panel rounded-3xl p-6 shadow-2xl space-y-4 no-print">
                 <div class="flex items-center justify-between pb-3 border-b border-white/10">
-                  <div class="flex items-center gap-2">
-                    <button onClick={handlePrevMonth} class="text-slate-400 hover:text-white p-1 transition">‹</button>
-                    <span class="font-bold text-sm text-slate-100">
+                  <div class="flex items-center gap-1">
+                    <button onClick={handlePrevMonth} class="text-slate-400 hover:text-white p-1 transition rounded-lg hover:bg-white/5">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7"/></svg>
+                    </button>
+                    <span class="font-extrabold text-sm text-slate-100 px-1">
                       {monthNames[currentMonth]} {currentYear}
                     </span>
-                    <button onClick={handleNextMonth} class="text-slate-400 hover:text-white p-1 transition">›</button>
+                    <button onClick={handleNextMonth} class="text-slate-400 hover:text-white p-1 transition rounded-lg hover:bg-white/5">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7"/></svg>
+                    </button>
                   </div>
 
                   <div class="flex items-center gap-1">
                     <select 
                       value={currentMonth} 
                       onChange={(e) => setCurrentMonth(Number(e.target.value))}
-                      class="bg-black/40 border border-white/10 rounded-xl text-xs text-slate-300 px-2 py-1 focus:outline-none"
+                      class="bg-black/40 border border-white/10 rounded-xl text-xs text-slate-300 px-2 py-1 focus:outline-none font-semibold cursor-pointer"
                     >
                       {monthNames.map((m, idx) => (
                         <option key={m} value={idx} class="bg-slate-900">{m.substring(0, 3)}</option>
@@ -643,7 +710,7 @@
                     <select 
                       value={currentYear} 
                       onChange={(e) => setCurrentYear(Number(e.target.value))}
-                      class="bg-black/40 border border-white/10 rounded-xl text-xs text-slate-300 px-2 py-1 focus:outline-none"
+                      class="bg-black/40 border border-white/10 rounded-xl text-xs text-slate-300 px-2 py-1 focus:outline-none font-semibold cursor-pointer"
                     >
                       {[2024, 2025, 2026, 2027, 2028].map(y => (
                         <option key={y} value={y} class="bg-slate-900">{y}</option>
@@ -654,7 +721,7 @@
 
                 <div class="grid grid-cols-7 gap-1 text-center">
                   {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(d => (
-                    <span key={d} class="text-[10px] font-bold text-slate-500 py-1">{d}</span>
+                    <span key={d} class="text-[10px] font-extrabold text-slate-500 py-1">{d}</span>
                   ))}
 
                   {Array.from({ length: firstDayOfMonth(currentMonth, currentYear) }).map((_, i) => (
@@ -671,7 +738,7 @@
                       <button
                         key={dayNum}
                         onClick={() => setSelectedDate(dateFormatted)}
-                        class={`h-8 w-8 mx-auto rounded-xl text-xs font-semibold flex items-center justify-center transition-all duration-200 ${
+                        class={`h-8 w-8 mx-auto rounded-xl text-xs font-bold flex items-center justify-center transition-all duration-200 ${
                           isSelected
                             ? `${theme.btn} scale-105`
                             : isToday
@@ -686,23 +753,28 @@
                 </div>
               </div>
 
-              {/* Weight Analytics */}
+              {/* Weight Analytics - MINIMIZED BY DEFAULT */}
               {hasWeightHabit && (
                 <div class="glass-panel rounded-3xl overflow-hidden shadow-2xl print-card">
                   <button 
                     onClick={() => setIsWeightChartOpen(!isWeightChartOpen)}
-                    class="w-full p-6 flex items-center justify-between text-left hover:bg-white/5 transition no-print"
+                    class="w-full p-5 flex items-center justify-between text-left hover:bg-white/5 transition no-print"
                   >
-                    <div class="flex items-center gap-2">
-                      <span class="text-xs font-bold text-slate-200 uppercase tracking-widest print-text">Weight Trend</span>
-                      <span class="text-[10px] bg-white/5 text-slate-400 px-2 py-0.5 rounded-full font-mono border border-white/10">
+                    <div class="flex items-center gap-2.5">
+                      <div class="w-7 h-7 rounded-lg bg-sky-500/20 text-sky-400 border border-sky-500/30 flex items-center justify-center">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18" />
+                        </svg>
+                      </div>
+                      <span class="text-xs font-bold text-slate-200 uppercase tracking-wider print-text">Weight Trend Graph</span>
+                      <span class="text-[10px] bg-white/5 text-slate-400 px-2 py-0.5 rounded-full font-mono border border-white/10 font-bold">
                         {monthWeightData.length} Logs
                       </span>
                     </div>
                     
                     <div class="flex items-center gap-2">
-                      <span class={`text-xs font-semibold ${theme.textWeekly}`}>
-                        {isWeightChartOpen ? 'Hide Graph' : 'Show Graph'}
+                      <span class={`text-xs font-bold ${theme.textWeekly}`}>
+                        {isWeightChartOpen ? 'Collapse' : 'Expand'}
                       </span>
                       <svg 
                         class={`w-4 h-4 text-slate-400 transition-transform duration-300 ${isWeightChartOpen ? 'rotate-180' : ''}`} 
@@ -710,16 +782,16 @@
                         stroke="currentColor" 
                         viewBox="0 0 24 24"
                       >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
                       </svg>
                     </div>
                   </button>
 
                   {(isWeightChartOpen || window.matchMedia('print').matches) && (
-                    <div class="px-6 pb-6 pt-1 border-t border-white/10 space-y-4">
+                    <div class="px-6 pb-6 pt-2 border-t border-white/10 space-y-4">
                       
                       <form onSubmit={handleTargetWeightSave} class="flex items-center justify-between gap-2 bg-black/30 p-3 rounded-2xl border border-white/5 no-print">
-                        <span class="text-xs text-slate-400 font-medium">Goal for {monthNames[currentMonth]}:</span>
+                        <span class="text-xs text-slate-400 font-semibold">Goal for {monthNames[currentMonth]}:</span>
                         <div class="flex items-center gap-2">
                           <div class="relative w-24">
                             <input
@@ -728,13 +800,13 @@
                               placeholder="Target"
                               value={targetWeightInput}
                               onChange={(e) => setTargetWeightInput(e.target.value)}
-                              class="w-full glass-input rounded-xl pl-2.5 pr-8 py-1 text-xs text-white placeholder-slate-500 focus:outline-none"
+                              class="w-full glass-input rounded-xl pl-2.5 pr-8 py-1 text-xs text-white placeholder-slate-500 focus:outline-none font-semibold"
                             />
-                            <span class="absolute right-2.5 top-1 text-[10px] text-slate-400 font-semibold pointer-events-none">lbs</span>
+                            <span class="absolute right-2.5 top-1 text-[10px] text-slate-400 font-bold pointer-events-none">lbs</span>
                           </div>
                           <button
                             type="submit"
-                            class="bg-white/10 hover:bg-white/20 text-white font-semibold text-xs px-3 py-1 rounded-xl transition"
+                            class="bg-white/10 hover:bg-white/20 text-white font-bold text-xs px-3 py-1 rounded-xl transition"
                           >
                             Set
                           </button>
@@ -742,20 +814,20 @@
                       </form>
 
                       {monthWeightData.length === 0 ? (
-                        <p class="text-xs text-slate-400 text-center py-6 print-text">
-                          No entries for {monthNames[currentMonth]}. Enter your daily weight to render trend lines.
+                        <p class="text-xs text-slate-400 text-center py-6 print-text font-medium">
+                          No entries for {monthNames[currentMonth]}. Enter daily weights to generate vector graphs.
                         </p>
                       ) : (
                         <div class="space-y-4">
-                          <div class="flex items-center justify-between text-xs text-slate-300 border-b border-white/5 pb-2">
-                            <span>Start: <strong class="text-white">{monthWeightData[0].weight} lbs</strong></span>
+                          <div class="flex items-center justify-between text-xs text-slate-300 border-b border-white/5 pb-2 font-medium">
+                            <span>Start: <strong class="text-white font-bold">{monthWeightData[0].weight} lbs</strong></span>
                             {currentTargetWeight && (
-                              <span>Goal: <strong class="text-emerald-400 font-semibold">{currentTargetWeight} lbs</strong></span>
+                              <span>Goal: <strong class="text-emerald-400 font-bold">{currentTargetWeight} lbs</strong></span>
                             )}
                             {monthWeightData.length > 0 && (() => {
                               const latest = monthWeightData[monthWeightData.length - 1].weight;
                               if (!currentTargetWeight) {
-                                return <span>Latest: <strong class="text-white">{latest} lbs</strong></span>;
+                                return <span>Latest: <strong class="text-white font-bold">{latest} lbs</strong></span>;
                               }
                               const toGoal = (latest - currentTargetWeight).toFixed(1);
                               return (
@@ -870,7 +942,7 @@
                             })()}
                           </div>
 
-                          <div class="flex items-center justify-center gap-4 text-[10px] text-slate-400 pt-1">
+                          <div class="flex items-center justify-center gap-4 text-[10px] text-slate-400 font-bold pt-1">
                             <div class="flex items-center gap-1.5">
                               <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
                               <span>{currentTargetWeight ? 'Towards Goal' : 'Decreased'}</span>
@@ -891,22 +963,27 @@
                 </div>
               )}
 
-              {/* Individual Breakdown */}
+              {/* Individual Breakdown - MINIMIZED BY DEFAULT */}
               <div class="glass-panel rounded-3xl overflow-hidden shadow-2xl print-card">
                 <button 
                   onClick={() => setIsAnalyticsOpen(!isAnalyticsOpen)}
-                  class="w-full p-6 flex items-center justify-between text-left hover:bg-white/5 transition no-print"
+                  class="w-full p-5 flex items-center justify-between text-left hover:bg-white/5 transition no-print"
                 >
-                  <div class="flex items-center gap-2">
-                    <span class="text-xs font-bold text-slate-200 uppercase tracking-widest print-text">Analytics Breakdown</span>
-                    <span class="text-[10px] bg-white/5 text-slate-400 px-2 py-0.5 rounded-full font-mono border border-white/10">
+                  <div class="flex items-center gap-2.5">
+                    <div class="w-7 h-7 rounded-lg bg-purple-500/20 text-purple-400 border border-purple-500/30 flex items-center justify-center">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                      </svg>
+                    </div>
+                    <span class="text-xs font-bold text-slate-200 uppercase tracking-wider print-text">Analytics Breakdown</span>
+                    <span class="text-[10px] bg-white/5 text-slate-400 px-2 py-0.5 rounded-full font-mono border border-white/10 font-bold">
                       {goals.length} Habits
                     </span>
                   </div>
                   
                   <div class="flex items-center gap-2">
-                    <span class={`text-xs font-semibold ${theme.textWeekly}`}>
-                      {isAnalyticsOpen ? 'Hide Stats' : 'Show Stats'}
+                    <span class={`text-xs font-bold ${theme.textWeekly}`}>
+                      {isAnalyticsOpen ? 'Collapse' : 'Expand'}
                     </span>
                     <svg 
                       class={`w-4 h-4 text-slate-400 transition-transform duration-300 ${isAnalyticsOpen ? 'rotate-180' : ''}`} 
@@ -914,15 +991,15 @@
                       stroke="currentColor" 
                       viewBox="0 0 24 24"
                     >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
                     </svg>
                   </div>
                 </button>
 
                 {(isAnalyticsOpen || window.matchMedia('print').matches) && (
-                  <div class="px-6 pb-6 pt-1 border-t border-white/10 space-y-5">
+                  <div class="px-6 pb-6 pt-2 border-t border-white/10 space-y-5">
                     {goals.length === 0 ? (
-                      <p class="text-xs text-slate-400 text-center py-4 print-text">Add habits above to generate completion stats.</p>
+                      <p class="text-xs text-slate-400 text-center py-4 print-text font-medium">Add habits above to generate completion stats.</p>
                     ) : (
                       <div class="space-y-5 divide-y divide-white/10">
                         {goals.map(goal => {
@@ -931,14 +1008,14 @@
 
                           return (
                             <div key={goal.id} class="pt-4 first:pt-0 space-y-3">
-                              <h3 class="text-sm font-semibold text-slate-200 truncate print-text">{goal.title}</h3>
+                              <h3 class="text-sm font-bold text-slate-200 truncate print-text">{goal.title}</h3>
 
                               <div class="space-y-1.5">
-                                <div class="flex justify-between text-xs text-slate-400 print-text">
+                                <div class="flex justify-between text-xs text-slate-400 font-semibold print-text">
                                   <span>7-Day Span</span>
                                   <span class={`font-bold ${theme.textWeekly}`}>{weekly.completedCount}/7 ({weekly.percentage}%)</span>
                                 </div>
-                                <div class="w-full bg-black/40 rounded-full h-2 overflow-hidden border border-white/5">
+                                <div class="w-full bg-black/50 rounded-full h-2 overflow-hidden border border-white/5">
                                   <div 
                                     class={`${theme.barWeekly} h-full rounded-full transition-all duration-700 print-bar`}
                                     style={{ width: `${weekly.percentage}%` }}
@@ -947,11 +1024,11 @@
                               </div>
 
                               <div class="space-y-1.5">
-                                <div class="flex justify-between text-xs text-slate-400 print-text">
+                                <div class="flex justify-between text-xs text-slate-400 font-semibold print-text">
                                   <span>30-Day Span</span>
                                   <span class={`font-bold ${theme.textMonthly}`}>{monthly.completedCount}/30 ({monthly.percentage}%)</span>
                                 </div>
-                                <div class="w-full bg-black/40 rounded-full h-2 overflow-hidden border border-white/5">
+                                <div class="w-full bg-black/50 rounded-full h-2 overflow-hidden border border-white/5">
                                   <div 
                                     class={`${theme.barMonthly} h-full rounded-full transition-all duration-700 print-bar`}
                                     style={{ width: `${monthly.percentage}%` }}
