@@ -3,14 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Goal & Habit Engine</title>
+  <title>Habit Engine</title>
 
-  <!-- Mobile Home Screen App Capabilities -->
+  <!-- Web & Mobile App Meta Tags -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Habit Engine">
+  <meta name="application-name" content="Habit Engine">
+  <meta name="theme-color" content="#1e1b4b">
 
-  <!-- Embedded Checked Medal Icon (SVG Data URL) -->
+  <!-- Embedded Web App Manifest (For Android / Chrome Web App Installation) -->
+  <link rel="manifest" href="data:application/manifest+json,{
+    &quot;name&quot;: &quot;Habit Engine&quot;,
+    &quot;short_name&quot;: &quot;Habit Engine&quot;,
+    &quot;start_url&quot;: &quot;.&quot;,
+    &quot;display&quot;: &quot;standalone&quot;,
+    &quot;background_color&quot;: &quot;%231e1b4b&quot;,
+    &quot;theme_color&quot;: &quot;%231e1b4b&quot;,
+    &quot;icons&quot;: [{
+      &quot;src&quot;: &quot;data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='112' fill='%231e1b4b'/><path d='M210 110 L150 330 L200 310 L230 360 L240 240 Z' fill='%23f43f5e' opacity='0.9'/><path d='M302 110 L362 330 L312 310 L282 360 L272 240 Z' fill='%23e11d48' opacity='0.7'/><circle cx='256' cy='220' r='110' fill='%23eab308'/><circle cx='256' cy='220' r='88' fill='%230f172a'/><path d='M205 220 L240 255 L310 185' fill='none' stroke='%23eab308' stroke-width='20' stroke-linecap='round' stroke-linejoin='round'/></svg>&quot;,
+      &quot;sizes&quot;: &quot;512x512&quot;,
+      &quot;type&quot;: &quot;image/svg+xml&quot;,
+      &quot;purpose&quot;: &quot;any maskable&quot;
+    }]
+  }">
+
+  <!-- Standard Favicons & iOS Apple Touch Icon -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='112' fill='%231e1b4b'/><path d='M210 110 L150 330 L200 310 L230 360 L240 240 Z' fill='%23f43f5e' opacity='0.9'/><path d='M302 110 L362 330 L312 310 L282 360 L272 240 Z' fill='%23e11d48' opacity='0.7'/><circle cx='256' cy='220' r='110' fill='%23eab308'/><circle cx='256' cy='220' r='88' fill='%230f172a'/><path d='M205 220 L240 255 L310 185' fill='none' stroke='%23eab308' stroke-width='20' stroke-linecap='round' stroke-linejoin='round'/></svg>">
   
   <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='112' fill='%231e1b4b'/><path d='M210 110 L150 330 L200 310 L230 360 L240 240 Z' fill='%23f43f5e' opacity='0.9'/><path d='M302 110 L362 330 L312 310 L282 360 L272 240 Z' fill='%23e11d48' opacity='0.7'/><circle cx='256' cy='220' r='110' fill='%23eab308'/><circle cx='256' cy='220' r='88' fill='%230f172a'/><path d='M205 220 L240 255 L310 185' fill='none' stroke='%23eab308' stroke-width='20' stroke-linecap='round' stroke-linejoin='round'/></svg>">
@@ -164,7 +182,6 @@
       const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(false);
       const [isWeightChartOpen, setIsWeightChartOpen] = useState(false);
 
-      // Check if any habit title INCLUDES the word "weight" (case-insensitive)
       const hasWeightHabit = goals.some(
         g => g.title.toLowerCase().includes('weight')
       );
@@ -172,13 +189,11 @@
       const theme = THEMES[currentTheme] || THEMES.rose;
       const monthKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
 
-      // Update Body Theme
       useEffect(() => {
         document.body.className = `${theme.bg} text-slate-100 min-h-screen antialiased transition-colors duration-300`;
         localStorage.setItem('app_theme', currentTheme);
       }, [currentTheme, theme]);
 
-      // Save Data to localStorage
       useEffect(() => {
         localStorage.setItem('app_goals', JSON.stringify(goals));
       }, [goals]);
@@ -195,7 +210,6 @@
         localStorage.setItem('app_target_weights', JSON.stringify(targetWeights));
       }, [targetWeights]);
 
-      // Sync local inputs when date or month changes
       useEffect(() => {
         setWeightInput(weightLogs[selectedDate] || '');
       }, [selectedDate, weightLogs]);
@@ -331,7 +345,6 @@
         "July", "August", "September", "October", "November", "December"
       ];
 
-      // Weight Line Chart Helper Calculations
       const getMonthWeightData = () => {
         const totalDays = daysInMonth(currentMonth, currentYear);
         const data = [];
@@ -378,7 +391,6 @@
               <p class={`${theme.textSub} text-sm mt-1 print-text`}>Customizable daily habit tracker.</p>
             </div>
 
-            {/* Quick Actions */}
             <div class="flex items-center gap-2 no-print">
               <select 
                 value={currentTheme}
@@ -412,7 +424,6 @@
             {/* Main Checklist Column */}
             <div class="lg:col-span-7 space-y-6">
               
-              {/* Selected Date Header Banner */}
               <div class={`flex items-center justify-between ${theme.cardBg} border ${theme.cardBorder} p-4 rounded-2xl print-card`}>
                 <div>
                   <span class={`text-xs font-semibold uppercase tracking-wider ${theme.textWeekly} print-text`}>Logging For</span>
@@ -427,7 +438,6 @@
                 )}
               </div>
 
-              {/* Weight Log Entry Module - Triggered if "weight" is in any habit title */}
               {hasWeightHabit && (
                 <div class={`${theme.cardBg} border ${theme.cardBorder} p-4 rounded-2xl space-y-3 no-print`}>
                   <div class="flex items-center justify-between">
@@ -464,7 +474,6 @@
                 </div>
               )}
 
-              {/* Add New Habit Input */}
               <form onSubmit={addGoal} class="relative flex items-center no-print">
                 <input
                   type="text"
@@ -481,7 +490,6 @@
                 </button>
               </form>
 
-              {/* Habit Checklist */}
               <div class="space-y-3">
                 {goals.length === 0 ? (
                   <div class={`border border-dashed border-white/10 rounded-2xl p-10 text-center space-y-3 ${theme.cardBg} print-card`}>
@@ -521,7 +529,6 @@
                             )}
                           </div>
                           
-                          {/* Inline Edit Form vs Standard Text */}
                           {isEditing ? (
                             <div class="flex items-center gap-2 flex-1 no-print" onClick={(e) => e.stopPropagation()}>
                               <input
@@ -557,7 +564,6 @@
                           )}
                         </div>
 
-                        {/* Action Buttons */}
                         {!isEditing && (
                           <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition no-print">
                             <button 
@@ -587,10 +593,9 @@
               </div>
             </div>
 
-            {/* Sidebar Column (Calendar, Weight Graph, & Analytics) */}
+            {/* Sidebar Column */}
             <div class="lg:col-span-5 space-y-6">
               
-              {/* Dynamic Calendar Date Picker Card */}
               <div class={`${theme.cardBg} border ${theme.cardBorder} rounded-2xl p-5 shadow-xl space-y-4 no-print`}>
                 <div class="flex items-center justify-between border-b border-white/10 pb-3">
                   <div class="flex items-center gap-2">
@@ -623,7 +628,6 @@
                   </div>
                 </div>
 
-                {/* Calendar Grid */}
                 <div class="grid grid-cols-7 gap-1 text-center">
                   {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(d => (
                     <span key={d} class="text-[10px] font-bold text-slate-400 py-1">{d}</span>
@@ -658,7 +662,6 @@
                 </div>
               </div>
 
-              {/* Expandable Weight Tracker Line Graph - Rendered if habit contains "weight" */}
               {hasWeightHabit && (
                 <div class={`${theme.cardBg} border ${theme.cardBorder} rounded-2xl shadow-xl overflow-hidden print-card`}>
                   <button 
@@ -690,7 +693,6 @@
                   {(isWeightChartOpen || window.matchMedia('print').matches) && (
                     <div class="px-5 pb-5 pt-1 border-t border-white/10 space-y-4">
                       
-                      {/* Monthly Goal Target Weight Input */}
                       <form onSubmit={handleTargetWeightSave} class="flex items-center justify-between gap-2 bg-black/20 p-2.5 rounded-xl border border-white/5 no-print">
                         <span class="text-xs text-slate-300 font-medium">Goal Weight for {monthNames[currentMonth]}:</span>
                         <div class="flex items-center gap-2">
@@ -720,7 +722,6 @@
                         </p>
                       ) : (
                         <div class="space-y-4">
-                          {/* Summary Header */}
                           <div class="flex items-center justify-between text-xs text-slate-300 border-b border-white/5 pb-2">
                             <span>Month Start: <strong class="text-white">{monthWeightData[0].weight} lbs</strong></span>
                             {currentTargetWeight && (
@@ -740,7 +741,6 @@
                             })()}
                           </div>
 
-                          {/* SVG Custom Responsive Line Graph */}
                           <div class="w-full h-44 relative pt-2">
                             {(() => {
                               const weights = monthWeightData.map(d => d.weight);
@@ -766,12 +766,10 @@
 
                               return (
                                 <svg viewBox={`0 0 ${width} ${height}`} class="w-full h-full overflow-visible">
-                                  {/* Grid lines */}
                                   <line x1={padding} y1={padding} x2={width - padding} y2={padding} stroke="currentColor" class="text-white/5" strokeDasharray="2" />
                                   <line x1={padding} y1={height / 2} x2={width - padding} y2={height / 2} stroke="currentColor" class="text-white/5" strokeDasharray="2" />
                                   <line x1={padding} y1={height - padding} x2={width - padding} y2={height - padding} stroke="currentColor" class="text-white/5" strokeDasharray="2" />
 
-                                  {/* Render Goal Target Line if set */}
                                   {targetY !== null && (
                                     <g>
                                       <line 
@@ -790,7 +788,6 @@
                                     </g>
                                   )}
 
-                                  {/* Render Segmented Color Lines */}
                                   {monthWeightData.map((d, i) => {
                                     if (i === 0) return null;
                                     const prev = monthWeightData[i - 1];
@@ -813,7 +810,6 @@
                                     );
                                   })}
 
-                                  {/* Render Interactive Data Dots */}
                                   {monthWeightData.map((d, i) => {
                                     const p = getCoords(i, d.weight);
                                     const prev = i > 0 ? monthWeightData[i - 1] : null;
@@ -830,7 +826,6 @@
                                           fill={dotColor}
                                           class="transition-all group-hover:r-7 stroke-2 stroke-black"
                                         />
-                                        {/* Tooltip on Hover */}
                                         <title>{`${d.date}: ${d.weight} lbs`}</title>
                                         <text
                                           x={p.x}
@@ -851,7 +846,6 @@
                             })()}
                           </div>
 
-                          {/* Legend */}
                           <div class="flex items-center justify-center gap-4 text-[10px] text-slate-400 pt-1">
                             <div class="flex items-center gap-1">
                               <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span>
@@ -873,7 +867,6 @@
                 </div>
               )}
 
-              {/* Collapsible Dropdown Analytics Section */}
               <div class={`${theme.cardBg} border ${theme.cardBorder} rounded-2xl shadow-xl overflow-hidden print-card`}>
                 <button 
                   onClick={() => setIsAnalyticsOpen(!isAnalyticsOpen)}
@@ -915,7 +908,6 @@
                             <div key={goal.id} class="pt-4 first:pt-0 space-y-2.5">
                               <h3 class="text-sm font-semibold text-slate-200 truncate print-text">{goal.title}</h3>
 
-                              {/* 7-Day Bar */}
                               <div class="space-y-1">
                                 <div class="flex justify-between text-xs text-slate-300 print-text">
                                   <span>7-Day: <strong class="font-normal opacity-90">{weekly.completedCount}/7 days</strong></span>
@@ -929,7 +921,6 @@
                                 </div>
                               </div>
 
-                              {/* 30-Day Bar */}
                               <div class="space-y-1">
                                 <div class="flex justify-between text-xs text-slate-300 print-text">
                                   <span>30-Day: <strong class="font-normal opacity-90">{monthly.completedCount}/30 days</strong></span>
