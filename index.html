@@ -134,9 +134,15 @@
         return saved ? JSON.parse(saved) : {};
       });
 
+      const [targetWeights, setTargetWeights] = useState(() => {
+        const saved = localStorage.getItem('app_target_weights');
+        return saved ? JSON.parse(saved) : {};
+      });
+
       // Active UI State
       const [newGoalText, setNewGoalText] = useState('');
       const [weightInput, setWeightInput] = useState('');
+      const [targetWeightInput, setTargetWeightInput] = useState('');
       const [selectedDate, setSelectedDate] = useState(todayStr);
       const [currentMonth, setCurrentMonth] = useState(today.getMonth());
       const [currentYear, setCurrentYear] = useState(today.getFullYear());
@@ -145,6 +151,7 @@
       const [isWeightChartOpen, setIsWeightChartOpen] = useState(true);
 
       const theme = THEMES[currentTheme] || THEMES.rose;
+      const monthKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
 
       // Update Body Theme
       useEffect(() => {
@@ -165,10 +172,18 @@
         localStorage.setItem('app_weight_logs', JSON.stringify(weightLogs));
       }, [weightLogs]);
 
-      // Sync local weight input state when date changes
+      useEffect(() => {
+        localStorage.setItem('app_target_weights', JSON.stringify(targetWeights));
+      }, [targetWeights]);
+
+      // Sync local inputs when date or month changes
       useEffect(() => {
         setWeightInput(weightLogs[selectedDate] || '');
       }, [selectedDate, weightLogs]);
+
+      useEffect(() => {
+        setTargetWeightInput(targetWeights[monthKey] || '');
+      }, [monthKey, targetWeights]);
 
       const toggleGoal = (goalId) => {
         setLogs(prev => {
@@ -205,6 +220,20 @@
             delete updated[selectedDate];
           } else {
             updated[selectedDate] = val;
+          }
+          return updated;
+        });
+      };
+
+      const handleTargetWeightSave = (e) => {
+        e.preventDefault();
+        const val = parseFloat(targetWeightInput);
+        setTargetWeights(prev => {
+          const updated = { ...prev };
+          if (isNaN(val) || val <= 0) {
+            delete updated[monthKey];
+          } else {
+            updated[monthKey] = val;
           }
           return updated;
         });
@@ -276,6 +305,26 @@
       };
 
       const monthWeightData = getMonthWeightData();
+      const currentTargetWeight = targetWeights[monthKey];
+
+      // Helper function to determine segment color relative to goal
+      const getTrendColor = (currentWeight, prevWeight, targetWeight) => {
+        if (currentWeight === prevWeight) return "#38bdf8"; // Blue (Unchanged)
+        if (!targetWeight) {
+          // Fallback if no target weight set: Green = down, Red = up
+          return currentWeight < prevWeight ? "#10b981" : "#f43f5e";
+        }
+
+        const prevDistance = Math.abs(prevWeight - targetWeight);
+        const currDistance = Math.abs(currentWeight - targetWeight);
+
+        if (currDistance < prevDistance) {
+          return "#10b981"; // Green (Moved CLOSER to goal)
+        } else if (currDistance > prevDistance) {
+          return "#f43f5e"; // Red (Moved FURTHER from goal)
+        }
+        return "#38bdf8";
+      };
 
       return (
         <div class="max-w-5xl mx-auto px-4 py-8 space-y-8">
@@ -550,6 +599,31 @@
 
                 {(isWeightChartOpen || window.matchMedia('print').matches) && (
                   <div class="px-5 pb-5 pt-1 border-t border-white/10 space-y-4">
+                    
+                    {/* Monthly Goal Target Weight Input */}
+                    <form onSubmit={handleTargetWeightSave} class="flex items-center justify-between gap-2 bg-black/20 p-2.5 rounded-xl border border-white/5 no-print">
+                      <span class="text-xs text-slate-300 font-medium">Goal Weight for {monthNames[currentMonth]}:</span>
+                      <div class="flex items-center gap-2">
+                        <div class="relative w-24">
+                          <input
+                            type="number"
+                            step="0.1"
+                            placeholder="Target"
+                            value={targetWeightInput}
+                            onChange={(e) => setTargetWeightInput(e.target.value)}
+                            class="w-full bg-black/40 border border-white/10 rounded-lg pl-2 pr-8 py-1 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-white/30"
+                          />
+                          <span class="absolute right-2 top-1 text-[10px] text-slate-400 font-semibold pointer-events-none">lbs</span>
+                        </div>
+                        <button
+                          type="submit"
+                          class="bg-white/10 hover:bg-white/20 text-white font-semibold text-xs px-2.5 py-1 rounded-lg transition"
+                        >
+                          Set
+                        </button>
+                      </div>
+                    </form>
+
                     {monthWeightData.length === 0 ? (
                       <p class="text-xs text-slate-400 text-center py-6 print-text">
                         No weight logged for {monthNames[currentMonth]}. Enter your weight above to generate your trend graph.
@@ -558,14 +632,19 @@
                       <div class="space-y-4">
                         {/* Summary Header */}
                         <div class="flex items-center justify-between text-xs text-slate-300 border-b border-white/5 pb-2">
-                          <span>Month Range: <strong class="text-white">{monthWeightData[0].weight} lbs</strong> → <strong class="text-white">{monthWeightData[monthWeightData.length - 1].weight} lbs</strong></span>
-                          {monthWeightData.length > 1 && (() => {
-                            const diff = (monthWeightData[monthWeightData.length - 1].weight - monthWeightData[0].weight).toFixed(1);
-                            const isDown = diff < 0;
-                            const isUp = diff > 0;
+                          <span>Month Start: <strong class="text-white">{monthWeightData[0].weight} lbs</strong></span>
+                          {currentTargetWeight && (
+                            <span>Target: <strong class="text-emerald-400 font-semibold">{currentTargetWeight} lbs</strong></span>
+                          )}
+                          {monthWeightData.length > 0 && (() => {
+                            const latest = monthWeightData[monthWeightData.length - 1].weight;
+                            if (!currentTargetWeight) {
+                              return <span>Current: <strong class="text-white">{latest} lbs</strong></span>;
+                            }
+                            const toGoal = (latest - currentTargetWeight).toFixed(1);
                             return (
-                              <span class={`font-bold ${isDown ? 'text-emerald-400' : isUp ? 'text-rose-400' : 'text-sky-400'}`}>
-                                {isDown ? `${diff} lbs 📉` : isUp ? `+${diff} lbs 📈` : '0.0 lbs ➖'}
+                              <span class="font-bold text-slate-200">
+                                {toGoal == 0 ? '🎯 Goal Met!' : toGoal > 0 ? `${toGoal} lbs to goal` : `${Math.abs(toGoal)} lbs under goal`}
                               </span>
                             );
                           })()}
@@ -575,6 +654,8 @@
                         <div class="w-full h-44 relative pt-2">
                           {(() => {
                             const weights = monthWeightData.map(d => d.weight);
+                            if (currentTargetWeight) weights.push(currentTargetWeight);
+
                             const minW = Math.min(...weights) - 2;
                             const maxW = Math.max(...weights) + 2;
                             const range = maxW - minW || 1;
@@ -589,12 +670,35 @@
                               return { x, y };
                             };
 
+                            const targetY = currentTargetWeight 
+                              ? height - padding - ((currentTargetWeight - minW) / range) * (height - padding * 2) 
+                              : null;
+
                             return (
                               <svg viewBox={`0 0 ${width} ${height}`} class="w-full h-full overflow-visible">
                                 {/* Grid lines */}
                                 <line x1={padding} y1={padding} x2={width - padding} y2={padding} stroke="currentColor" class="text-white/5" strokeDasharray="2" />
                                 <line x1={padding} y1={height / 2} x2={width - padding} y2={height / 2} stroke="currentColor" class="text-white/5" strokeDasharray="2" />
                                 <line x1={padding} y1={height - padding} x2={width - padding} y2={height - padding} stroke="currentColor" class="text-white/5" strokeDasharray="2" />
+
+                                {/* Render Goal Target Line if set */}
+                                {targetY !== null && (
+                                  <g>
+                                    <line 
+                                      x1={padding} 
+                                      y1={targetY} 
+                                      x2={width - padding} 
+                                      y2={targetY} 
+                                      stroke="#10b981" 
+                                      strokeWidth="1.5" 
+                                      strokeDasharray="4 4" 
+                                      opacity="0.6"
+                                    />
+                                    <text x={width - padding} y={targetY - 4} textAnchor="end" fill="#10b981" fontSize="7" fontWeight="bold">
+                                      Goal: {currentTargetWeight} lbs
+                                    </text>
+                                  </g>
+                                )}
 
                                 {/* Render Segmented Color Lines */}
                                 {monthWeightData.map((d, i) => {
@@ -603,9 +707,7 @@
                                   const p1 = getCoords(i - 1, prev.weight);
                                   const p2 = getCoords(i, d.weight);
 
-                                  let strokeColor = "#38bdf8"; // Blue (Unchanged)
-                                  if (d.weight < prev.weight) strokeColor = "#10b981"; // Green (Decreased)
-                                  if (d.weight > prev.weight) strokeColor = "#f43f5e"; // Red (Increased)
+                                  const strokeColor = getTrendColor(d.weight, prev.weight, currentTargetWeight);
 
                                   return (
                                     <line
@@ -625,11 +727,9 @@
                                 {monthWeightData.map((d, i) => {
                                   const p = getCoords(i, d.weight);
                                   const prev = i > 0 ? monthWeightData[i - 1] : null;
-                                  let dotColor = "#38bdf8";
-                                  if (prev) {
-                                    if (d.weight < prev.weight) dotColor = "#10b981";
-                                    if (d.weight > prev.weight) dotColor = "#f43f5e";
-                                  }
+                                  const dotColor = prev 
+                                    ? getTrendColor(d.weight, prev.weight, currentTargetWeight)
+                                    : "#38bdf8";
 
                                   return (
                                     <g key={`dot-${i}`} class="group cursor-pointer">
@@ -665,11 +765,11 @@
                         <div class="flex items-center justify-center gap-4 text-[10px] text-slate-400 pt-1">
                           <div class="flex items-center gap-1">
                             <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span>
-                            <span>Weight Decreased</span>
+                            <span>{currentTargetWeight ? 'Towards Goal' : 'Weight Decreased'}</span>
                           </div>
                           <div class="flex items-center gap-1">
                             <span class="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block"></span>
-                            <span>Weight Increased</span>
+                            <span>{currentTargetWeight ? 'Away From Goal' : 'Weight Increased'}</span>
                           </div>
                           <div class="flex items-center gap-1">
                             <span class="w-2.5 h-2.5 rounded-full bg-sky-400 inline-block"></span>
