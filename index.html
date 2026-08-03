@@ -151,12 +151,11 @@
       const [currentYear, setCurrentYear] = useState(today.getFullYear());
       
       const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(false);
-      // Graph starts minimized by default
       const [isWeightChartOpen, setIsWeightChartOpen] = useState(false);
 
-      // Check if "Weight" is currently tracked in the habit list
+      // Check if any habit title INCLUDES the word "weight" (case-insensitive, allows emojis/extra text)
       const hasWeightHabit = goals.some(
-        g => g.title.trim().toLowerCase() === 'weight'
+        g => g.title.toLowerCase().includes('weight')
       );
 
       const theme = THEMES[currentTheme] || THEMES.rose;
@@ -417,7 +416,7 @@
                 )}
               </div>
 
-              {/* Weight Log Entry Module - Only renders if "Weight" is added as a habit */}
+              {/* Weight Log Entry Module - Triggered if "weight" is in any habit title */}
               {hasWeightHabit && (
                 <div class={`${theme.cardBg} border ${theme.cardBorder} p-4 rounded-2xl space-y-3 no-print`}>
                   <div class="flex items-center justify-between">
@@ -458,7 +457,7 @@
               <form onSubmit={addGoal} class="relative flex items-center no-print">
                 <input
                   type="text"
-                  placeholder="Add a new daily habit (e.g. Weight)..."
+                  placeholder="Add a new daily habit (e.g. Weight ⚖️)..."
                   value={newGoalText}
                   onChange={(e) => setNewGoalText(e.target.value)}
                   class="w-full bg-black/30 border border-white/10 rounded-2xl pl-4 pr-28 py-3.5 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-white/30 transition-all shadow-inner"
@@ -480,7 +479,7 @@
                     </div>
                     <h3 class="font-semibold text-slate-200 print-text">No habits added yet</h3>
                     <p class={`text-xs ${theme.textSub} max-w-sm mx-auto print-text`}>
-                      Add habits above to build your daily master list. Type "Weight" to activate weight tracking.
+                      Add habits above to build your daily master list. Include the word "weight" (e.g., Weight ⚖️) to unlock weight tracking features.
                     </p>
                   </div>
                 ) : (
@@ -648,7 +647,7 @@
                 </div>
               </div>
 
-              {/* Expandable Weight Tracker Line Graph - Only renders if "Weight" habit exists */}
+              {/* Expandable Weight Tracker Line Graph - Rendered if habit contains "weight" */}
               {hasWeightHabit && (
                 <div class={`${theme.cardBg} border ${theme.cardBorder} rounded-2xl shadow-xl overflow-hidden print-card`}>
                   <button 
