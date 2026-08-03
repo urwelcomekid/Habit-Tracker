@@ -4,6 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Goal & Habit Engine</title>
+
+  <!-- Mobile Home Screen App Capabilities -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Habit Engine">
+
+  <!-- Embedded Checked Medal Icon (SVG Data URL) -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='112' fill='%231e1b4b'/><path d='M210 110 L150 330 L200 310 L230 360 L240 240 Z' fill='%23f43f5e' opacity='0.9'/><path d='M302 110 L362 330 L312 310 L282 360 L272 240 Z' fill='%23e11d48' opacity='0.7'/><circle cx='256' cy='220' r='110' fill='%23eab308'/><circle cx='256' cy='220' r='88' fill='%230f172a'/><path d='M205 220 L240 255 L310 185' fill='none' stroke='%23eab308' stroke-width='20' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+  
+  <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='112' fill='%231e1b4b'/><path d='M210 110 L150 330 L200 310 L230 360 L240 240 Z' fill='%23f43f5e' opacity='0.9'/><path d='M302 110 L362 330 L312 310 L282 360 L272 240 Z' fill='%23e11d48' opacity='0.7'/><circle cx='256' cy='220' r='110' fill='%23eab308'/><circle cx='256' cy='220' r='88' fill='%230f172a'/><path d='M205 220 L240 255 L310 185' fill='none' stroke='%23eab308' stroke-width='20' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+
   <!-- React & ReactDOM CDN -->
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
@@ -153,7 +164,7 @@
       const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(false);
       const [isWeightChartOpen, setIsWeightChartOpen] = useState(false);
 
-      // Check if any habit title INCLUDES the word "weight" (case-insensitive, allows emojis/extra text)
+      // Check if any habit title INCLUDES the word "weight" (case-insensitive)
       const hasWeightHabit = goals.some(
         g => g.title.toLowerCase().includes('weight')
       );
